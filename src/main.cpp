@@ -318,10 +318,15 @@ void readAndPublishTemperature() {
   lastTemperatureRead = millis();
   
   // 发布温度数据
-  char tempMsg[10];
-  dtostrf(temperature, 4, 2, tempMsg);
-  mqttClient.publish(temperature_topic.c_str(), tempMsg, true);
-  Serial.print("🌡️ 温度数据已发布: ");
+  StaticJsonDocument<200> doc;
+  doc["temperature"] = temperature;
+
+  char jsonBuffer[200];
+  serializeJson(doc, jsonBuffer);
+
+  // 发布 JSON 到 temperature_topic
+  mqttClient.publish(temperature_topic.c_str(), jsonBuffer, true);
+  Serial.print("🌡️ 温度数据已发布(JSON): ");
   Serial.print(temperature);
   Serial.println("°C");
   
